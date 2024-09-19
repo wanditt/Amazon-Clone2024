@@ -1,0 +1,10 @@
+* {
+  padding: 0;
+  margin: 0;
+  font-family: sans-serif;
+}
+
+:root {
+  --primmary-color: #febd69;
+  --primmary-color: #d49644;
+}

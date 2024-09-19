@@ -1,0 +1,39 @@
+/* LowerHeader.module.css */
+
+/* Container for the lower header */
+.lowerHeader {
+  display: flex; /* Flex layout for horizontal alignment */
+
+  /* align-items: center; Center the content vertically */
+  background-color: #232f3e;
+
+  color: #ffffff; /* White text color */
+}
+
+/* Styling for the unordered list */
+.lowerHeader ul {
+  list-style: none; /* Remove default bullet points */
+  display: flex; /* Display list items in a row */
+  gap: 25px; /* Space between list items */
+  margin: 0; /* Remove default margin */
+  /* padding: 0; Remove default padding */
+}
+
+/* Styling for each list item */
+.lowerHeader li {
+  cursor: pointer; /* Change cursor to pointer on hover */
+  transition: color 0.3s; /* Smooth transition for color change */
+}
+.lowerHeader ul {
+  padding: 8px;
+}
+
+/* Hover effect for list items */
+.lowerHeader li:hover {
+  color: #ff9900; /* Amazon's signature orange on hover */
+}
+.lowerHeader li:first-child {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
