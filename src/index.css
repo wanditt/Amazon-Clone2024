@@ -2,9 +2,10 @@
   padding: 0;
   margin: 0;
   font-family: sans-serif;
+  box-sizing: border-box;
 }
 
 :root {
   --primmary-color: #febd69;
-  --primmary-color: #d49644;
+  --primmary-shade: #d1892b;
 }

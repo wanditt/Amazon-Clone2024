@@ -70,7 +70,7 @@ function Header() {
           </div>
 
           {/* Account and Lists */}
-          <Link to="/Signup" className={classes.account_link}>
+          <Link to="/Auth" className={classes.account_link}>
             <div className={classes.account_info}>
               <p>Sign In</p>
               <span>Account & Lists</span>
