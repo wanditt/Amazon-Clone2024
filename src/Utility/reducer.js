@@ -1,13 +1,12 @@
 import { Type } from "./actiontype"; // Adjust the path if necessary
 
-export const initialeState  = {
+export const initialeState = {
   basket: [], // Initialize basket as an empty array
   user: null, // Initial state for user
 };
 
 export const reducer = (state, action) => {
   switch (action.type) {
-    
     case Type.ADD_TO_BASKET:
       const existingItem = state.basket.find(
         (item) => item.id === action.item.id
@@ -50,6 +49,11 @@ export const reducer = (state, action) => {
       return {
         ...state,
         basket: newBasket,
+      };
+    case Type.EMPTY_BASKET:
+      return {
+        ...state,
+        basket: [],
       };
 
     case Type.SET_USER:

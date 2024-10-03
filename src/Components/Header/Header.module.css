@@ -166,7 +166,8 @@
 .header_container a:hover,
 .delivery_info:hover,
 .links_container :hover,
-.language_selector :hover .account_link ul li :hover {
+.language_selector :hover
+ .account_link :hover {
   border: 1px solid white;
   background-repeat: 3px;
 }

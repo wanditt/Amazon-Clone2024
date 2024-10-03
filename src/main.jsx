@@ -1,6 +1,7 @@
 import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App.jsx";
+import App from "./App"; // Make sure the path is correct and relative
+
 import "./index.css";
 import { DataProvider } from "./Components/DataProvider/DataProvider.jsx";
 import { initialeState, reducer } from "./Utility/reducer.js";

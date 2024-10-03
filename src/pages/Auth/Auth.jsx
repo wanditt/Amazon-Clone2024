@@ -1,72 +1,85 @@
 import React, { useState, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import classes from "./Signup.module.css";
 import { auth } from "../../Utility/firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
+import { ClipLoader } from "react-spinners";
 import { DataContext } from "../../Components/DataProvider/DataProvider";
-
 import { Type } from "../../Utility/actiontype"; // Ensure this path is correct
 
 function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null); // Initialize with null or empty string
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState({ signIn: false, signUp: false });
 
   const [{ user }, dispatch] = useContext(DataContext);
+  const navigate = useNavigate();
+  const navStateData = useLocation();
 
-  console.log(user);
+  const center = {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  };
 
   const authHandler = async (e) => {
     e.preventDefault();
 
     try {
       if (e.target.name === "Signin") {
-        // Sign in user
+        setLoading({ ...loading, signIn: true });
         const userInfo = await signInWithEmailAndPassword(
           auth,
           email,
           password
         );
-        console.log(userInfo);
-        dispatch({
-          type: Type.SET_USER,
-          user: userInfo.user,
-        });
+        dispatch({ type: Type.SET_USER, user: userInfo.user });
+        setLoading({ ...loading, signIn: false });
+        navigate(navStateData?.state?.redirect || "/");
       } else if (e.target.name === "Signup") {
-        // Create a new user
+        setLoading({ ...loading, signUp: true });
         const userInfo = await createUserWithEmailAndPassword(
           auth,
           email,
           password
         );
-        console.log(userInfo);
-        dispatch({
-          type: Type.SET_USER,
-          user: userInfo.user,
-        });
+        dispatch({ type: Type.SET_USER, user: userInfo.user });
+        setLoading({ ...loading, signUp: false });
+        navigate(navStateData?.state?.redirect || "/");
       }
     } catch (err) {
       setError(err.message);
-      console.log(err);
+      setLoading({ signIn: false, signUp: false });
     }
   };
 
   return (
     <section className={classes.login}>
-      {/* logo */}
-      <Link>
+      <Link to="/">
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg"
           alt="Amazon Logo"
         />
       </Link>
 
-      {/* form */}
       <div className={classes.login_container}>
         <h1>Sign In</h1>
+        {navStateData.state && navStateData.state.msg && (
+          <small
+            style={{
+              padding: "5px",
+              textAlign: center,
+              color: "red",
+              fontWeight: "bold",
+            }}
+          >
+            {navStateData.state.msg}
+          </small>
+        )}
         <form>
           <div>
             <label htmlFor="Email">Email</label>
@@ -86,30 +99,31 @@ function Auth() {
               id="password"
             />
           </div>
-          {error && <p style={{ color: "red" }}>{error}</p>}{" "}
-          {/* Display error if exists */}
+          {error && <p style={{ color: "red" }}>{error}</p>}
           <button
             type="Submit"
             onClick={authHandler}
             name="Signin"
             className={classes.login_signinButton}
           >
-            Sign In
+            {loading.signIn ? <ClipLoader color="#000" size={15} /> : "Sign In"}
           </button>
         </form>
-        {/* agreement */}
         <p>
           By signing in you agree to the Amazon Fake Clone condition of use &
           sale. Please see our privacy notice.
         </p>
-        {/* account btn */}
         <button
           type="Submit"
           onClick={authHandler}
           name="Signup"
           className={classes.login_registerBtn}
         >
-          Create Your Amazon Account
+          {loading.signUp ? (
+            <ClipLoader color="#000" size={15} />
+          ) : (
+            "Create Your Amazon Account"
+          )}
         </button>
       </div>
     </section>

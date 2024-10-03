@@ -1,20 +1,31 @@
 import React from "react";
 import classes from "./Header.module.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { SlLocationPin } from "react-icons/sl";
 import { BsSearch } from "react-icons/bs";
 import { BsCart3 } from "react-icons/bs";
 import LowerHeader from "./LowerHeader";
 import { useContext } from "react";
 import { DataContext } from "../DataProvider/DataProvider.jsx";
+import { auth } from "../../Utility/firebase.js";
 
 function Header() {
-  const [{ basket }, dispatch] = useContext(DataContext);
+  const [{ user, basket }, dispatch] = useContext(DataContext);
+  const navigate = useNavigate(); // Use navigate for redirection after sign-out
 
   // Corrected total item calculation
   const totalItem = basket?.reduce((amount, item) => {
     return amount + item.amount; // Correct calculation
   }, 0);
+
+  const handleSignOut = () => {
+    auth.signOut();
+    dispatch({
+      type: "SET_USER",
+      user: null,
+    });
+    navigate("/Auth"); // Redirect after sign-out
+  };
 
   return (
     <section className={classes.fixed}>
@@ -70,10 +81,21 @@ function Header() {
           </div>
 
           {/* Account and Lists */}
-          <Link to="/Auth" className={classes.account_link}>
-            <div className={classes.account_info}>
-              <p>Sign In</p>
-              <span>Account & Lists</span>
+          <Link to={!user ? "/Auth" : "#"} className={classes.account_link}>
+            <div>
+              {user ? (
+                <>
+                  <p>Hello {user?.email?.split("@")[0]}</p>
+                  <span onClick={handleSignOut} style={{ cursor: "pointer" }}>
+                    Sign Out
+                  </span>
+                </>
+              ) : (
+                <>
+                  <p>Hello, Sign In</p>
+                  <span>Account & Lists</span>
+                </>
+              )}
             </div>
           </Link>
 
