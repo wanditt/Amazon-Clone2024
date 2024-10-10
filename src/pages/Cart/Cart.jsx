@@ -42,7 +42,7 @@
 // export default Cart;
 import React, { useContext } from "react";
 import classes from "./Cart.module.css";
-import LayOut from "../../Components/LayOut/Layout";
+import LayOut from "../../Components/LayOut/LayOut";
 import { DataContext } from "../../Components/DataProvider/DataProvider";
 import ProductCard from "../../Components/Product/ProductCard";
 import CurrencyFormat from "../../Components/CurrencyFormat/CurrencyFormat";
