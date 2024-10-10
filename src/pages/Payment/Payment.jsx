@@ -79,8 +79,8 @@ function Payment() {
         dispatch({ type: Type.EMPTY_BASKET });
 
         // Check if navigate is working
-        console.log("Navigating to /orders");
-        navigate("/orders", { state: { msg: "You have placed a new order!" } });
+        console.log("Navigating to /Orders");
+        navigate("/Orders", { state: { msg: "You have placed a new order!" } });
       }
     } catch (error) {
       console.error("Payment error:", error);
