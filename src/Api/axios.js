@@ -5,5 +5,6 @@ export const axiosInstance = axios.create({
   // deployed version of amazon server on render.com
   baseURL: "https://amazon-api-deploy-oc6n.onrender.com/",
 });
+//localhost:5000
 
 export default axiosInstance; // This would cause a conflict

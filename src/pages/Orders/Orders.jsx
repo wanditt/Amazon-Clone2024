@@ -12,38 +12,31 @@ function Orders() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchOrders = async () => {
+      const ordersSnapshot = await db
+        .collection("users")
+        .doc(user?.uid)
+        .collection("Orders")
+        .orderBy("created", "desc")
+        .get();
+
+      const ordersData = ordersSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        data: doc.data(),
+      }));
+
+      setOrders(ordersData); // Assuming you're using a useState hook to store the orders
+    };
+
     if (user) {
-      const ordersRef = collection(db, "users", user.uid, "orders");
-      const ordersQuery = query(ordersRef, orderBy("created", "desc"));
-
-      const unsubscribe = onSnapshot(
-        ordersQuery,
-        (snapshot) => {
-          setOrders(
-            snapshot.docs.map((doc) => ({
-              id: doc.id,
-              data: doc.data(),
-            }))
-          );
-          setLoading(false);
-        },
-        (error) => {
-          console.error("Error fetching orders: ", error);
-          setLoading(false);
-        }
-      );
-
-      return () => unsubscribe();
-    } else {
-      setOrders([]);
-      setLoading(false);
+      fetchOrders();
     }
   }, [user]);
 
   if (loading) {
     return <p>Loading orders...</p>;
   }
-
+  console.log(orders);
   return (
     <LayOut>
       <section className={classes.container}>
@@ -72,7 +65,7 @@ function Orders() {
             </div>
           )}
         </div>
-      </section> 
+      </section>
     </LayOut>
   );
 }
