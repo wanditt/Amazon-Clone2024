@@ -11,75 +11,64 @@ import { db } from "../../Utility/firebase";
 import { useNavigate } from "react-router-dom";
 import { Type } from "../../Utility/actiontype";
 
-function Payment() {
-  const [{ basket, user }, dispatch] = useContext(DataContext); // Destructure user from context
-
-  // Calculate total items in the basket
-  const totalItem = basket?.reduce((amount, item) => {
-    return amount + item.amount;
-  }, 0);
-
-  const total = basket.reduce((amount, item) => {
-    return item.price * item.amount + amount;
-  }, 0);
-
+const Payment = () => {
+  const [{ basket, user }, dispatch] = useContext(DataContext);
   const [cardError, setCardError] = useState(null);
   const [processing, setProcessing] = useState(false);
+
   const stripe = useStripe();
   const elements = useElements();
   const navigate = useNavigate();
 
+  // Calculate total items and total cost
+  const totalItem = basket?.reduce((amount, item) => amount + item.amount, 0);
+  const total = basket?.reduce(
+    (amount, item) => amount + item.price * item.amount,
+    0
+  );
+
+  // Handle card input changes (for validation)
   const handleChange = (e) => {
-    if (e?.error) {
-      setCardError(e.error.message); // Set error message if there's an error
-    } else {
-      setCardError(""); // Clear error when valid
-    }
+    setCardError(e?.error ? e.error.message : "");
   };
 
+  // Handle payment submission
   const handlePayment = async (e) => {
     e.preventDefault();
+    setProcessing(true);
 
     try {
-      setProcessing(true);
-
-      // Step 1: Create payment intent by calling backend
-      const response = await axiosInstance({
-        method: "POST",
-        url: `/payment/create?total=${total * 100}`, // Stripe requires amount in cents
-      });
-
+      // Step 1: Create payment intent on backend
+      const response = await axiosInstance.post(
+        `/payment/create?total=${total * 100}`
+      );
       const clientSecret = response.data?.clientSecret;
 
-      // Step 2: Confirm payment using Stripe
+      // Step 2: Confirm payment with Stripe
       const { paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: elements.getElement(CardElement),
         },
       });
 
-      console.log(paymentIntent);
-
-      // Step 3: Order confirmed; Clear basket or update Firestore database if needed
+      // Step 3: If payment is successful, save order in Firestore
       if (paymentIntent.status === "succeeded") {
         console.log("Payment successful!");
 
-        // Save order to Firestore
         await db
           .collection("users")
-          .doc(user.uid)
-          .collection("Orders") // Ensure the collection name is correct here
+          .doc(user?.uid)
+          .collection("Orders")
           .doc(paymentIntent.id)
           .set({
-            basket: basket,
+            basket,
             amount: paymentIntent.amount,
             created: paymentIntent.created,
           });
 
         dispatch({ type: Type.EMPTY_BASKET });
 
-        // Check if navigate is working
-        console.log("Navigating to /Orders");
+        // Redirect to orders page with a message
         navigate("/Orders", { state: { msg: "You have placed a new order!" } });
       }
     } catch (error) {
@@ -93,38 +82,38 @@ function Payment() {
   return (
     <LayOut>
       {/* Header */}
-      <div className={classes.payment_header}>Checkout ({totalItem}) items</div>
+      <div className={classes.payment_header}>Checkout ({totalItem} items)</div>
 
-      {/* User Info */}
       {user ? (
         <>
+          {/* User Info */}
           <div className={classes.user_info}>Logged in as: {user.email}</div>
 
-          {/* Payment method */}
+          {/* Payment Section */}
           <section>
-            {/* Address */}
+            {/* Delivery Address */}
             <div className={classes.flex}>
               <h3>Delivery Address</h3>
               <div>
-                <div>{user.email}</div>
-                <div>123 React Lane</div>
-                <div>Alexandria VA</div>
+                <p>{user.email}</p>
+                <p>123 React Lane</p>
+                <p>Alexandria VA</p>
               </div>
             </div>
             <hr />
 
-            {/* Products */}
+            {/* Review Products */}
             <div className={classes.flex}>
               <h3>Review items and delivery</h3>
               <div>
                 {basket?.map((item) => (
-                  <ProductCard product={item} flex={true} key={item.id} />
+                  <ProductCard key={item.id} product={item} flex />
                 ))}
               </div>
             </div>
             <hr />
 
-            {/* Card form */}
+            {/* Payment Method */}
             <div className={classes.flex}>
               <h3>Payment methods</h3>
               <div className={classes.payment_card_container}>
@@ -135,17 +124,18 @@ function Payment() {
                     )}
 
                     <CardElement onChange={handleChange} />
-                    <br />
+
                     <div>
                       <span style={{ display: "flex", gap: "10px" }}>
-                        <p>Total Order</p> |<CurrencyFormat amount={total} />
+                        <p>Total Order</p> | <CurrencyFormat amount={total} />
                       </span>
                     </div>
+
                     <button type="submit" disabled={processing}>
                       {processing ? (
                         <div className={classes.loader}>
                           <ClipLoader color="gray" size={12} />
-                          <p>Please wait . . . </p>
+                          <p>Please wait . . .</p>
                         </div>
                       ) : (
                         "Pay Now"
@@ -162,6 +152,6 @@ function Payment() {
       )}
     </LayOut>
   );
-}
+};
 
 export default Payment;
